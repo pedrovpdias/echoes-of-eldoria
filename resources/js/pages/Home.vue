@@ -14,7 +14,7 @@
       const x = e.clientX - rect.left
       const y = e.clientY - rect.top
 
-      const r = 110
+      const r = 105
 
       const path = `
         M ${x-r} ${y}
@@ -39,14 +39,14 @@
         <filter id="liquid">
           <feTurbulence
             type="fractalNoise"
-            baseFrequency="0.03"
+            baseFrequency="0.01 0.02"
             numOctaves="2"
             result="noise"
           />
           <feDisplacementMap
             in="SourceGraphic"
             in2="noise"
-            scale="130"
+            scale="150"
           />
         </filter>
 
