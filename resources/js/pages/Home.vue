@@ -1,73 +1,87 @@
 <script setup lang="ts">
-  import { onMounted } from 'vue'
+  import { ref, onMounted } from "vue"
+
+  const hero = ref<HTMLElement | null>(null)
 
   onMounted(() => {
-    const hero = document.querySelector(".hero")
-    const overlay = document.querySelector(".overlay")
 
-    if (hero && overlay) {
-      hero.addEventListener("mousemove", (e) => {
-        const rect = hero.getBoundingClientRect()
+    const blob = document.getElementById("blob")
 
-        const x = e.clientX - rect.left
-        const y = e.clientY - rect.top
+    hero.value?.addEventListener("mousemove", (e: MouseEvent) => {
 
-        overlay.style.setProperty("--x", x + "px")
-        overlay.style.setProperty("--y", y + "px")
+      const rect = hero.value!.getBoundingClientRect()
 
-      })
-    }
+      const x = e.clientX - rect.left
+      const y = e.clientY - rect.top
+
+      const r = 110
+
+      const path = `
+        M ${x-r} ${y}
+        C ${x-r} ${y-r}, ${x+r} ${y-r}, ${x+r} ${y}
+        C ${x+r} ${y+r}, ${x-r} ${y+r}, ${x-r} ${y}
+        Z
+      `
+
+      blob?.setAttribute("d", path)
+
+    })
+
   })
 </script>
 
 <template>
-  <section class="hero">
-    <div class="overlay"></div>
+  <section ref="hero" class="bg-black h-[80vh] overflow-hidden relative">
 
-    <div class="content">
-      <h1>Efeito Spotlight</h1>
-      <p>Passe o mouse pela tela</p>
+    <svg class="absolute inset-0 w-full h-full pointer-events-none">
+      <defs>
+
+        <filter id="liquid">
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.03"
+            numOctaves="2"
+            result="noise"
+          />
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="noise"
+            scale="130"
+          />
+        </filter>
+
+        <mask id="spotlight-mask">
+          <rect width="100%" height="100%" fill="black" />
+
+          <path
+            id="blob"
+            fill="white"
+            filter="url(#liquid)"
+            d="M0 0"
+          />
+        </mask>
+
+      </defs>
+    </svg>
+
+    <div id="hero-overlay"></div>
+
+    <div class="relative inset-0 z-10 text-center text-white">
+      <h1>Echoes of Eldoria</h1>
     </div>
+
   </section>
 </template>
 
 <style scoped>
-  .hero {
-    position: relative;
-    height: 100vh;
-    overflow: hidden;
-
-    background: #111;
-    color: white;
-  }
-
-  .content{
-    position: relative;
-    z-index: 2;
-    text-align: center;
-    margin-top: 40vh;
-  }
-
-  .overlay{
+  #hero-overlay{
     position:absolute;
     inset:0;
 
     background: url('../../images/backgrounds/the-dragon-s-wrath.png') center/cover;
 
-    --x: 50%;
-    --y: 50%;
-
-    mask-image: radial-gradient(
-      circle 150px at var(--x) var(--y),
-      black 0%,
-      transparent 100%
-    );
-
-    -webkit-mask-image: radial-gradient(
-      circle 150px at var(--x) var(--y),
-      black 0%,
-      transparent 100%
-    );
+    mask: url(#spotlight-mask);
+    -webkit-mask: url(#spotlight-mask);
   }
 </style>
 
